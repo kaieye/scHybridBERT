@@ -460,12 +460,10 @@ for epoch in range(0,args.n_epochs+1):
         dur.append(time.time() - t0)
 
     acc = evaluate(model, g, features, labels, val_nid)
-
     if epoch%200==0:
         print("Epoch {:05d} | Time(s) {:.4f} | Loss {:.4f} | Accuracy {:.4f} | "
           "ETputs(KTEPS) {:.2f}".format(epoch, np.mean(dur), loss.item(),
                                         acc, n_edges / np.mean(dur) / 1000))
-
     if acc>best_acc:
         torch.save(model.state_dict(), dataset_path+'graphsage.pth')
         best_acc=acc
@@ -483,7 +481,7 @@ model.load_state_dict(torch.load(dataset_path+'graphsage.pth'))
 model.eval()
 with torch.no_grad():
     logits = model(g, features)
-    logits = logits[val_nid]
 x=logits.cpu().numpy()
 data_df = pd.DataFrame(x)
 data_df.to_csv(dataset_path+'Cell_L.csv',index=False)
+print("Cell Level Is Done")
