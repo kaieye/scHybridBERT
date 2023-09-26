@@ -229,7 +229,7 @@ weights = [network[u][v]['weight'] for u, v in network.edges()]
 time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 print('-----start gene-cor-embedding -----',time) 
 graph = Graph(tmp,directed=False, weighted=True)
-node2vec = Node2Vec(graph, dim=200, walk_length=100, context=10, p=2.0, q=0.5, workers=2)
+node2vec = Node2Vec(graph, dim=200, walk_length=100, window=10, p=2.0, q=0.5, workers=2)
 node2vec.train(epochs=100)
 emb = {str(node): node2vec.wv[node] for node in graph.node_names}
 time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
