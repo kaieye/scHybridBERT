@@ -486,4 +486,4 @@ with torch.no_grad():
     logits = logits[val_nid]
 x=logits.cpu().numpy()
 data_df = pd.DataFrame(x)
-data_df.to_csv(dataset_path+'SAGE.csv',index=False)
+data_df.to_csv(dataset_path+'Cell_L.csv',index=False)
