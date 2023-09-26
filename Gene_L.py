@@ -86,7 +86,7 @@ LEARNING_RATE = args.learning_rate
 SEQ_LEN = len(data_train_.var) + 1
 VALIDATE_EVERY = args.valid_every
 
-PATIENCE = 2
+PATIENCE = 10
 UNASSIGN_THRES = 0.0
 CLASS = args.bin_num + 2
 
@@ -192,16 +192,12 @@ model = PerformerLM(
 
 model.to_out = Identity(dropout=0., h_dim=128, out_dim=label_dict.shape[0])
 max_acc = 0.0
-if args.cor_embed==1:
-    file_path='./datasets/'+args.data_name+'/'+'cor_best.pt'
-else:
-    file_path='./datasets/'+args.data_name+'/'+'best.pt'
-    
+file_path='./datasets/'+args.data_name+'/'+'best.pt'
 folder = os.path.exists(file_path)
-# if folder:
-#     ckpt = torch.load(file_path)
-#     model.load_state_dict(ckpt['model_state_dict'])
-#     max_acc = ckpt['best_acc']
+if folder:
+    ckpt = torch.load(file_path)
+    model.load_state_dict(ckpt['model_state_dict'])
+    max_acc = ckpt['best_acc']
 model = model.to(device)
 # model = DDP(model, device_ids=[local_rank], output_device=local_rank)
 
@@ -254,8 +250,6 @@ for i in range(1, EPOCHS+1):
     # epoch_acc = get_reduced(epoch_acc, local_rank, 0, world_size)
     if is_master:
         print(f'    ==  Epoch: {i} | Training Loss: {epoch_loss:.6f} | Accuracy: {epoch_acc:6.4f}%  ==')
-    if epoch_acc>=99.99:
-        break
     # dist.barrier()
     scheduler.step()
 
@@ -313,12 +307,12 @@ for i in range(1, EPOCHS+1):
             torch.save({
                 'model_state_dict': model.state_dict(),
                 'best_acc':max_acc
-                       },ckpt_dir+'cor_best.pt')
+                       },ckpt_dir+'best.pt')
         else:
             trigger_times += 1
             if trigger_times > PATIENCE:
                 break
-#     # del predictions, 
+    # del predictions, 
     
 ckpt = torch.load(file_path)
 model.load_state_dict(ckpt['model_state_dict'])
@@ -331,7 +325,7 @@ batch_size2 = data_train.shape[0]
 pred_finals = []
 novel_indices = []
 pred_class=[]
-print("#######################################")
+
 with torch.no_grad():
     for index in range(batch_size2):
         full_seq = data_train[index].toarray()[0]
@@ -361,24 +355,10 @@ with torch.no_grad():
         pred_finals.append(pred_final.cpu().tolist())
 pred_finals=sum(pred_finals,[])
 pred_list = label_dict[pred_finals].tolist()
-# print(classification_report(la.obs['celltype'], pred_list, target_names=None, digits=4))
-
-# acc=0
-# for i in range(len(la.obs['celltype'])):
-#     if pred_list[i]==la.obs['celltype'][i]:
-#         acc+=1
-# acc_Bert=acc/len(la.obs['celltype'])
-# print('scbert预测结果:',acc_Bert)
-# print('ARI score is ',metrics.adjusted_rand_score(pred_list,la.obs['celltype']))
-# print('NMI score is ',metrics.normalized_mutual_info_score(pred_list,la.obs['celltype']))
-
 
 
 a=torch.cat(pred_class,dim=0)
+print(a.shape)
 x = a.cpu().numpy()
 data_df = pd.DataFrame(x)
-if args.cor_embed:
-    data_df.to_csv('./datasets/'+args.data_name+'/cor_scbert.csv',index=False)
-else:
-    data_df.to_csv('./datasets/'+args.data_name+'/scbert.csv',index=False)
-    
+data_df.to_csv('./datasets/'+args.data_name+'/Gene_L.csv',index=False)
