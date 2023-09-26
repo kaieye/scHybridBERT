@@ -227,7 +227,7 @@ weights = [network[u][v]['weight'] for u, v in network.edges()]
 # model = node2vec.fit(window=5, min_count=1, batch_words=4)
 # emb = {str(node): model.wv[str(node)] for node in network.nodes()}
 time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-print('-----start gene-cor-embedding -----',time) 
+print('-----start gene-regulatory-embedding -----',time) 
 graph = Graph(tmp,directed=False, weighted=True)
 node2vec = Node2Vec(graph, dim=200, walk_length=100, window=10, p=2.0, q=0.5, workers=2)
 node2vec.train(epochs=100)
