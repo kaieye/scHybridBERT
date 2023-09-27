@@ -23,7 +23,7 @@ from torch.utils.data.distributed import DistributedSampler
 from torch.nn.parallel import DistributedDataParallel as DDP
 import torch.distributed as dist
 
-from performer_pytorch import PerformerLM
+from performer_pytorch.performer_pytorch import PerformerLM
 import scanpy as sc
 import anndata as ad
 from utils import *
