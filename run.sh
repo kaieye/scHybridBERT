@@ -1,10 +1,7 @@
-# "Zeisel" "Klein" "AD-brain" "PBMC-4k" "PBMC-7k" "PBMC-Kang-A" "PBMC-Kang-B" "PBMC-Kang-C"
-for i in "Mouse"
+for i in   "Mouse" "Zeisel" "Klein" "AD-brain" "PBMC-4k" "PBMC-7k" "PBMC-Kang-A" "PBMC-Kang-B" "PBMC-Kang-C"
 do
-    python3 produce.py --data_name $i
-    # python3 -u finetune.py --data_name $i --cor_embed 0 >> ${i}.log #不使用调控嵌入
-    python3 -u GAT_SAGE.py --data_name $i --dis_method 3 --model GraphSAGEGAT >> ${i}.log
-    python3 -u finetune.py --data_name $i --cor_embed 1 >> ${i}.log # 使用调控嵌入
-    # python3 -u merge.py --data_name $i >> ${i}.log
+    python3 -u preprocess.py --data_name $i
+    python3 -u Gene_L.py --data_name $i --regu_embed 1  >> ${i}.log 2 >&1
+    python3 -u Cell_L.py --data_name $i --dis_method 3  >> ${i}.log 2 >&1
+    python3 -u fusion.py --data_name $i>> ${i}.log 2 >&1
 done
- 
