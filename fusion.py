@@ -16,7 +16,9 @@ import pandas as pd
 softmax = nn.Softmax(dim=-1)
 a=torch.Tensor(pd.read_csv('./datasets/'+args.data_name+'/Cell_L.csv').values)
 b=torch.Tensor(pd.read_csv('./datasets/'+args.data_name+'/Gene_L.csv').values)
-
+merged_data = torch.cat((a,b),dim=1)
+train_data=merged_data[:int(merged_data.shape[0]*0.8),:]
+test_data=merged_data[int(merged_data.shape[0]*0.8):,:]
 train_label = pd.read_csv('./datasets/'+args.data_name+'/train_label.csv').iloc[:,1]
 train_label = torch.Tensor(train_label)
 test_label = pd.read_csv('./datasets/'+args.data_name+'/test_label.csv').iloc[:,1]
@@ -40,6 +42,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 train_data=merged_data[:int(merged_data.shape[0]*0.8),:]
 test_data=merged_data[int(merged_data.shape[0]*0.8):,:]
 clf = MLPClassifier().fit(train_data,train_label)
-print('scHybridBERT ACC :',round(int(torch.sum(pred==test_label))/test_data.shape[0],6))
+pred = clf.predict(test_data)
+print('scHybridBERT ACC :',round(int(torch.sum(torch.tensor(pred)==test_label))/test_data.shape[0],6))
 print('ARI score is ',metrics.adjusted_rand_score(pred,test_label))
 print('NMI score is ',metrics.normalized_mutual_info_score(pred,test_label))
